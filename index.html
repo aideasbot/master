@@ -258,14 +258,15 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycby5Cki-X5_e_YIdwP8G3QWFkFd5Rb5d-6-uA_AJ-PgjkCv0zgG7J59TFxA0QYvBo3ci/exec"; 
         
-        // --- DETECCIÓN DINÁMICA DEL LOCAL (Subdominios y Parámetros) ---
+        // --- DETECCIÓN DINÁMICA DEL LOCAL (WWW, Subdominios y Parámetros) ---
         const urlParams = new URLSearchParams(window.location.search);
         let localDetectado = urlParams.get('local'); 
 
-        // Si no hay parámetro "?local=", intentamos leer el subdominio
         if (!localDetectado) {
-            const host = window.location.hostname; 
-            // Verificamos que sea un subdominio de pido.club y no la raíz ni Vercel interno
+            let host = window.location.hostname.toLowerCase(); 
+            // LIMPIEZA: Si el dominio empieza con www., se lo quitamos
+            host = host.replace(/^www\./, '');
+
             if (host.includes('pido.club') && host !== 'pido.club' && !host.includes('vercel.app')) {
                 localDetectado = host.split('.')[0]; 
             }
@@ -329,7 +330,6 @@
 
         async function cargarDatos() {
             try {
-                // Se agrega el parámetro local a la consulta GET
                 const res = await fetch(`${API_URL}?local=${encodeURIComponent(NOMBRE_LOCAL_ACTUAL)}&nocache=${new Date().getTime()}`);
                 datosFull = await res.json();
 
